@@ -13,23 +13,31 @@ from sentence_transformers import SentenceTransformer
 from umap import UMAP
 from hdbscan import HDBSCAN
 from sklearn.feature_extraction.text import CountVectorizer
+from pathlib import Path
 
 # -----------------------------------------------------------------------------
 # 1. CARGA DE DATOS
 # -----------------------------------------------------------------------------
 
-data_wo_na = pd.read_csv('data_sentiment.csv', low_memory=False)
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_PROCESSED = PROJECT_ROOT / 'data' / 'processed'
 
-#%%
-topic_model = BERTopic.load("modelo_bertopic")
-docs = data_wo_na['text_bertopic'].tolist()
-topics, probs = topic_model.transform(docs)
+data_wo_na = pd.read_csv(DATA_PROCESSED / 'data_sentiment.csv', low_memory=False)
 
 #%%
 # -----------------------------------------------------------------------------
 # 2. BERTOPIC
 # -----------------------------------------------------------------------------
+#%%
+# OPCIÓN 1: Cargar modelo ya entrenado
+OUTPUTS = PROJECT_ROOT / 'outputs'
 
+topic_model = BERTopic.load(OUTPUTS / "modelo_bertopic")
+docs = data_wo_na['text_bertopic'].tolist()
+topics, probs = topic_model.transform(docs)
+
+#%%
+# OPCIÓN 2: Entrenar modelo desde cero
 stopwords_es = [
     # Lista actual
     "la", "de", "en", "el", "que", "para", "con", 
@@ -93,22 +101,10 @@ docs = data_wo_na['text_bertopic'].tolist()
 
 topics, probs = topic_model.fit_transform(docs)
 
-#%%
+#%% 
+# EN AMBAS OPCIONES SE EJECUTA TODO A PARTIR DE AQUÍ
 data_wo_na["bertopic_topic"] = topics
 data_wo_na["bertopic_prob"]  = probs.max(axis=1)
-
-#%%
-new_topics = topic_model.reduce_outliers(
-    data_wo_na["text_bertopic"], 
-    topics, 
-    strategy="distributions",
-    threshold=0.1
-)
-topic_model.update_topics(data_wo_na["text_bertopic"], topics=new_topics)
-
-# Ver cómo ha cambiado la distribución
-topic_info_new = topic_model.get_topic_info()
-print(topic_info_new)
 
 # -----------------------------------------------------------------------------
 # 4. INSPECCIÓN DE TÓPICOS
@@ -164,13 +160,9 @@ print(data_wo_na['bertopic_name'].value_counts())
 # 7. GUARDADO
 # -----------------------------------------------------------------------------
 #%%
-data_wo_na.to_csv('data_final.csv', index=False)
+data_wo_na.to_csv(DATA_PROCESSED / 'data_final.csv', index=False)
 print("Guardado: data_final.csv")
 
-topic_model.save("modelo_bertopic")
+topic_model.save(OUTPUTS / "modelo_bertopic")
 print("Guardado: modelo_bertopic")
 
-
-# %%
-data_wo_na.to_excel('data_final.xlsx')
-# %%
