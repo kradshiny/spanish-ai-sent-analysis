@@ -12,13 +12,19 @@ import re
 import pycountry
 import plotly.express as px
 from countrystatecity_countries import get_countries, get_states_of_country
+from pathlib import Path
 
 # %%
 # -----------------------------------------------------------------------------
 # 1. CARGA DE DATOS
 # -----------------------------------------------------------------------------
 
-data = pd.read_csv('data_clean_with_2022.csv', low_memory=False)
+# Rutas
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_RAW = PROJECT_ROOT / 'data' / 'raw'
+DATA_PROCESSED = PROJECT_ROOT / 'data' / 'processed'
+
+data = pd.read_csv(DATA_RAW / 'tweets_raw.csv', low_memory=False)
 
 # -----------------------------------------------------------------------------
 # 2. EXPLORACIÓN INICIAL
@@ -301,5 +307,5 @@ data_wo_na[['length']].boxplot()
 # 7. GUARDADO
 # -----------------------------------------------------------------------------
 
-data_wo_na.to_csv('data_wo_na.csv', index=False)
+data_wo_na.to_csv(DATA_PROCESSED / 'data_wo_na.csv', index=False)
 print("Guardado: data_wo_na.csv")
