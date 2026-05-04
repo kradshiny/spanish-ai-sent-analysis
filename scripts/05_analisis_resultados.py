@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pathlib import Path
 
 # =============================================================================
 # CONFIGURACIÓN DE CARPETAS DE SALIDA
@@ -29,7 +30,7 @@ for carpeta in CARPETAS.values():
 def guardar(fig, apartado, nombre):
     """Guarda la figura en la carpeta del apartado correspondiente."""
     ruta = os.path.join(CARPETAS[apartado], f"{nombre}.png")
-    fig.savefig(ruta, dpi=180, bbox_inches='tight')
+    fig.savefig(OUTPUTS / ruta, dpi=180, bbox_inches='tight')
     plt.close(fig)
     print(f"Guardado: {ruta}")
 
@@ -99,8 +100,14 @@ rename_paises = {
 # A. CARGA DE DATOS
 # =============================================================================
 # %%
-data_wo_na = pd.read_csv('data_final.csv', low_memory=False)
-data       = pd.read_csv('data_clean_with_2022.csv', low_memory=False)
+
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_PROCESSED = PROJECT_ROOT / 'data' / 'processed'
+DATA_RAW = PROJECT_ROOT / 'data' / 'raw'
+OUTPUTS = PROJECT_ROOT / 'outputs' / 'figures'
+
+data_wo_na = pd.read_csv(DATA_PROCESSED / 'data_final.csv', low_memory=False)
+data       = pd.read_csv(DATA_RAW / 'data_clean_with_2022.csv', low_memory=False)
 
 # =============================================================================
 # B. PREPARACIÓN TEMPORAL
