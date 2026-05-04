@@ -7,12 +7,16 @@
 
 import pandas as pd
 from pysentimiento import create_analyzer
+from pathlib import Path
 
 # -----------------------------------------------------------------------------
 # 1. CARGA DE DATOS
 # -----------------------------------------------------------------------------
 
-data_wo_na = pd.read_csv('data_clean_text.csv', low_memory=False)
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_PROCESSED = PROJECT_ROOT / 'data' / 'processed'
+
+data_wo_na = pd.read_csv(DATA_PROCESSED / 'data_clean_text.csv', low_memory=False)
 
 # -----------------------------------------------------------------------------
 # 2. MODELO ROBERTUITO
@@ -46,5 +50,5 @@ print(data_wo_na['sentiment_robertuito'].value_counts())
 # 4. GUARDADO
 # -----------------------------------------------------------------------------
 
-data_wo_na.to_csv('data_sentiment.csv', index=False)
+data_wo_na.to_csv(DATA_PROCESSED / 'data_sentiment.csv', index=False)
 print("Guardado: data_sentiment.csv")
